@@ -10,7 +10,7 @@ export default function UrlShortnerContainer() {
 	return (
 		<div className="flex min-h-screen w-full ">
 			<div className="fixed top-0 left-0 w-full bg-white shadow-md z-10 py-4">
-				<h1 className="text-3xl font-bold px-6">Welcome to URL multitool !!</h1>
+				<h1 className="text-3xl font-bold px-6">Welcome to LinkLab !!</h1>
 			</div>
 			{/* Sidebar */}
 			<div className="w-1/5 bg-gray-100 p-6 shadow-md">
