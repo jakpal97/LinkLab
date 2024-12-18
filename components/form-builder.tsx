@@ -5,7 +5,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from 
 import { Copy } from 'lucide-react'
 
 export default function Dashboard() {
-	const [baseUrl, setBaseUrl] = useState('https://dentaltree.pl')
+	const [baseUrl, setBaseUrl] = useState('')
 	const [utmSource, setUtmSource] = useState('')
 	const [utmMedium, setUtmMedium] = useState('')
 	const [utmCampaign, setUtmCampaign] = useState('')
@@ -62,7 +62,7 @@ export default function Dashboard() {
 								id="baseUrl"
 								value={baseUrl}
 								onChange={e => setBaseUrl(e.target.value)}
-								placeholder="https://dentaltree.pl"
+								placeholder=""
 							/>
 						</div>
 
