@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 
 interface RedirectPageProps {
-	params: { shortcode: string }
+	params: Promise< { shortcode: string }>
 }
 
 export default async function RedirectPage({ params }: RedirectPageProps) {
@@ -23,6 +23,6 @@ export default async function RedirectPage({ params }: RedirectPageProps) {
 		data: { views: { increment: 1 } },
 	})
 
-	// Przekierowanie PO zakończeniu operacji Prisma
-	return redirect(url.original)
+	// Przekierowanie
+	redirect(url.original)
 }

@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 		data: {
 			original: url,
 			short,
-			params: Object.keys(params).length > 0 ? params : null, // Jeśli brak parametrów, zapisujemy null
+			params: Object.keys(params).length > 0 ? params : {}, // Jeśli brak parametrów, zapisujemy null
 		},
 	})
 
