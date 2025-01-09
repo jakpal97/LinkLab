@@ -18,7 +18,7 @@ export default function ShortForm({handleUrlShortened}: ShortenFormProps) {
 			const response = await fetch('/api/shorten', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({  url }), // Poprawiona nazwa pola
+				body: JSON.stringify({  url }), 
 			})
 
 
@@ -46,7 +46,7 @@ export default function ShortForm({handleUrlShortened}: ShortenFormProps) {
 					placeholder="Wprowadź URL do skrócenia"
 					required
 				/>
-				<Button className="w-full p-2" type="submit" disabled={isLoading}>
+				<Button className="w-full p-5 text-xl" type="submit" disabled={isLoading}>
 					{isLoading ? 'Trwa skracanie...' : 'Skróć swój link'}
 				</Button>
 			</form>

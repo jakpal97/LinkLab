@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from './ui/button'
 import { CopyIcon, EyeIcon, Check } from 'lucide-react'
 
+
 // // Definicja interfejsu dla obiektu URL
 // interface Url {
 // 	id: string
@@ -79,6 +80,7 @@ export default function UrlList() {
 	}
 
 	return (
+		<>
 		<div>
 			<h2 className="text-2xl font-bold mb-2">Ostatnie linki</h2>
 
@@ -107,5 +109,6 @@ export default function UrlList() {
 				))}
 			</ul>
 		</div>
+		</>
 	)
 }

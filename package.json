@@ -10,10 +10,15 @@
 		"postinstall": "prisma generate"
 	},
 	"dependencies": {
+		"@clerk/nextjs": "^6.9.6",
+		"@fortawesome/fontawesome-svg-core": "^6.7.2",
+		"@google/generative-ai": "^0.21.0",
+		"@huggingface/inference": "^2.8.1",
 		"@prisma/client": "^5.0.0",
 		"@radix-ui/react-aspect-ratio": "^1.1.1",
 		"@radix-ui/react-dialog": "^1.1.2",
 		"@radix-ui/react-slot": "^1.1.0",
+		"@radix-ui/react-tooltip": "^1.1.6",
 		"@supabase/supabase-js": "^2.46.2",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
@@ -24,7 +29,9 @@
 		"react": "19.0.0-rc-66855b96-20241106",
 		"react-dom": "19.0.0-rc-66855b96-20241106",
 		"tailwind-merge": "^2.5.5",
-		"tailwindcss-animate": "^1.0.7"
+		"tailwindcss-animate": "^1.0.7",
+		"torch": "^0.2.7",
+		"transformers": "^3.1.0"
 	},
 	"devDependencies": {
 		"@types/node": "^20",
