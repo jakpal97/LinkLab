@@ -62,7 +62,7 @@ export default function UrlShortnerContainer() {
 					<li>
 						<button
 							onClick={() => setActiveComponent('generator')}
-							className={`w-full text-left p-3 rounded-lg transition-colors duration-300 ${
+							className={`w-full text-left p-3 rounded-lg transition-colors duration-300 hidden ${
 								activeComponent === 'generator' ? 'bg-blue-500 text-white' : 'hover:bg-blue-200'
 							}
                             `}>
@@ -89,7 +89,7 @@ export default function UrlShortnerContainer() {
 					)}
 					{activeComponent === 'generator' && (
 						<>
-							{/* <h1 className="text-3xl font-bold text-center mb-6">Wygeneruj Post na social media !</h1> */}
+							<h1 className="text-3xl font-bold text-center mb-6">Wygeneruj Post na social media !</h1> 
 							<PostGenerator/>
 						</>
 					)}
