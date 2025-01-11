@@ -18,7 +18,7 @@ export default function ShortForm({handleUrlShortened}: ShortenFormProps) {
 			const response = await fetch('/api/shorten', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({  url }), 
+				body: JSON.stringify({ url }), 
 			})
 
 

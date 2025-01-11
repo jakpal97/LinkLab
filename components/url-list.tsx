@@ -88,7 +88,7 @@ export default function UrlList() {
 				{urls.map(url => (
 					<li
 						key={url.id}
-						className="flex items-center gap-2 justify-between border p-2 bg-card rounded-md text-card-foreground  ">
+						className="flex items-center  justify-between border p-2 bg-card rounded-md text-card-foreground  ">
 						<Link href={`/${url.short}`} target="_blank" className="text-blue-500">
 							{shortenerUrl(url.short)}
 						</Link>
