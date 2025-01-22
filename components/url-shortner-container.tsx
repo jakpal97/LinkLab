@@ -26,7 +26,7 @@ export default function UrlShortnerContainer() {
 			} flex min-h-screen w-full transition-colors duration-300`}>
 			<div className="fixed top-0 left-0 w-full shadow-md z-10 py-4 ${darkMode ? 'bg-gray-800' : 'bg-white'}">
 				<div className="flex justify-between px-6">
-					<h1 className="text-4xl font-extrabold">Welcome to LinkLab !!</h1>
+					<img src='./logoLinkLab-removebg-preview.png' alt='LinkLab' className='h-12'></img>
 					<button
 						onClick={toggleDarkMode}
 						className="px-4 py-2 border rounded-lg ${darkMode ? 'border-white' : 'border-black'}">

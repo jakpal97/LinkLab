@@ -17,6 +17,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
 	title: 'LinkLab',
 	description: 'App for shortening URLs',
+	icons: {
+		icon: "/favicon.png",
+	  },
 }
 const roboto = Roboto({
 	subsets: ['latin'],
@@ -30,6 +33,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
+			
 			<body className={`${geistSans.variable} ${geistMono.variable} ${roboto.className} antialiased w-full  `}>
 				{children}
 			</body>
