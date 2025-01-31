@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from './ui/button'
-import { CopyIcon, EyeIcon, Check } from 'lucide-react'
+import { CopyIcon, EyeIcon, Check, Trash2 } from 'lucide-react'
 
 type Url = {
 	id: string
@@ -12,14 +12,11 @@ type Url = {
 	views: number
 }
 
-const ITEMS_PER_PAGE = 30
-
 export default function UrlList() {
 	const [urls, setUrls] = useState<Url[]>([])
 	const [copied, setCopied] = useState<boolean>(false)
 	const [copyUrl, setCopyUrl] = useState<string>('')
 	const [isLoading, setIsLoading] = useState<boolean>(false)
-	const [currentPage, setCurrentPage] = useState<number>(1)
 
 	const shortenerUrl = (code: string) => `${process.env.NEXT_PUBLIC_DOMAIN}/${code}`
 
@@ -30,7 +27,7 @@ export default function UrlList() {
 			const data = await response.json()
 			setUrls(data)
 		} catch (error) {
-			console.log(error)
+			console.error(error)
 		} finally {
 			setIsLoading(false)
 		}
@@ -46,6 +43,26 @@ export default function UrlList() {
 				setCopyUrl('')
 			}, 3000)
 		})
+	}
+
+	const handleDeleteUrl = async (id: string) => {
+		const confirmDelete = confirm('Czy na pewno chcesz usunąć ten link?')
+		if (!confirmDelete) return
+
+		try {
+			const response = await fetch(`/api/urls/${id}`, {
+				method: 'DELETE',
+			})
+
+			if (response.ok) {
+				// Usuwamy link z lokalnego stanu
+				setUrls(prevUrls => prevUrls.filter(url => url.id !== id))
+			} else {
+				console.error('Błąd podczas usuwania linku')
+			}
+		} catch (error) {
+			console.error('Błąd połączenia z serwerem:', error)
+		}
 	}
 
 	useEffect(() => {
@@ -76,29 +93,13 @@ export default function UrlList() {
 		)
 	}
 
-	// Obliczanie indeksów dla bieżącej strony
-	const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-	const endIndex = startIndex + ITEMS_PER_PAGE
-	const paginatedUrls = urls.slice(startIndex, endIndex)
-
-	// Obsługa zmiany strony
-	const totalPages = Math.ceil(urls.length / ITEMS_PER_PAGE)
-
-	const handlePreviousPage = () => {
-		if (currentPage > 1) setCurrentPage(prev => prev - 1)
-	}
-
-	const handleNextPage = () => {
-		if (currentPage < totalPages) setCurrentPage(prev => prev + 1)
-	}
-
 	return (
 		<>
 			<div>
 				<h2 className="text-2xl font-bold mb-2">Ostatnie linki</h2>
 
 				<ul className="space-y-2">
-					{paginatedUrls.map(url => (
+					{urls.map(url => (
 						<li
 							key={url.id}
 							className="flex items-center justify-between border p-2 bg-card rounded-md text-card-foreground">
@@ -106,6 +107,7 @@ export default function UrlList() {
 								{shortenerUrl(url.short)}
 							</Link>
 							<div className="flex items-center gap-3">
+								{/* Kopiowanie linku */}
 								<Button
 									onClick={() => handleCopyUrl(url.short)}
 									variant="ghost"
@@ -113,27 +115,23 @@ export default function UrlList() {
 									className="text-muted-foreground hover:bg-muted">
 									{copied && copyUrl == url.short ? <Check className="w-4 h-4" /> : <CopyIcon className="w-4 h-4" />}
 								</Button>
+								{/* Licznik wyświetleń */}
 								<span className="flex items-center">
 									<EyeIcon className="h-4 w-4" />
 									{url.views}
 								</span>
+								{/* Przycisk usuwania linku */}
+								<Button
+									onClick={() => handleDeleteUrl(url.id)}
+									variant="ghost"
+									size="icon"
+									className="text-red-500 hover:bg-red-100">
+									<Trash2 className="w-4 h-4" />
+								</Button>
 							</div>
 						</li>
 					))}
 				</ul>
-
-				{/* Paginacja */}
-				<div className="flex justify-center mt-4 gap-4">
-					<Button onClick={handlePreviousPage} disabled={currentPage === 1}>
-						Poprzednia
-					</Button>
-					<span className="text-lg font-medium">
-						{currentPage} / {totalPages}
-					</span>
-					<Button onClick={handleNextPage} disabled={currentPage === totalPages}>
-						Następna
-					</Button>
-				</div>
 			</div>
 		</>
 	)
