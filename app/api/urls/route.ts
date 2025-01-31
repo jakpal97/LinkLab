@@ -6,7 +6,7 @@ export async function GET() {
  try{
 	const urls = await prisma.url.findMany({
 		orderBy: { createdAt: 'desc'},
-		take: 5,
+		take: 30,
 	})
 	return NextResponse.json(urls)
  }catch(error){
