@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 
@@ -11,6 +12,7 @@ export default function ShortForm({ handleUrlShortened }: ShortenFormProps) {
 	const [url, setUrl] = useState<string>('')
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
+	const router = useRouter()
 
 	const handleOnSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -35,6 +37,8 @@ export default function ShortForm({ handleUrlShortened }: ShortenFormProps) {
 
 			// ✅ **Sprawdzanie, czy serwer zwrócił poprawny status**
 			if (!response.ok) {
+				setUrl('')
+				router.push(`?page=1`)
 				const errorData = await response.json()
 				throw new Error(errorData.error || 'Wystąpił błąd podczas skracania URL')
 			}

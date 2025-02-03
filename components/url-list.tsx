@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from './ui/button'
-import { CopyIcon, EyeIcon, Check } from 'lucide-react'
-import { TrashIcon } from 'lucide-react'
+import { CopyIcon, EyeIcon, Check, TrashIcon } from 'lucide-react'
+
 type Url = {
 	id: string
 	short: string
@@ -14,20 +15,24 @@ type Url = {
 
 export default function UrlList({ refresh }: { refresh: boolean }) {
 	const [urls, setUrls] = useState<Url[]>([])
-	const [copied, setCopied] = useState<boolean>(false)
-	const [copyUrl, setCopyUrl] = useState<string>('')
 	const [isLoading, setIsLoading] = useState<boolean>(false)
-	
+	const [totalCount, setTotalCount] = useState<number>(0)
+	const [copiedUrl, setCopiedUrl] = useState<string | null>(null) // Przechowuje skopiowany link
 
-	const shortenerUrl = (code: string) => `${process.env.NEXT_PUBLIC_DOMAIN}/${code}`
-	
+	const searchParams = useSearchParams()
+	const router = useRouter()
+
+	const page = parseInt(searchParams.get('page') || '1', 10) // Pobieramy aktualną stronę
+	const pageSize = 15
+	const totalPages = Math.ceil(totalCount / pageSize)
 
 	const fetchUrls = async () => {
 		setIsLoading(true)
 		try {
-			const response = await fetch('/api/urls')
+			const response = await fetch(`/api/urls?page=${page}`)
 			const data = await response.json()
-			setUrls(data)
+			setUrls(data.urls)
+			setTotalCount(data.totalCount) // Pobieramy liczbę wszystkich linków
 		} catch (error) {
 			console.error(error)
 		} finally {
@@ -35,15 +40,20 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 		}
 	}
 
-	const handleCopyUrl = (code: string) => {
-		const fullUrl = `${shortenerUrl(code)}`
+	// 🔄 Odświeżanie listy po zmianie strony lub dodaniu linku
+	useEffect(() => {
+		fetchUrls()
+	}, [page, refresh])
+
+	const goToPage = (newPage: number) => {
+		router.push(`?page=${newPage}`)
+	}
+
+	const handleCopyUrl = (short: string) => {
+		const fullUrl = `${process.env.NEXT_PUBLIC_DOMAIN}/${short}`
 		navigator.clipboard.writeText(fullUrl).then(() => {
-			setCopied(true)
-			setCopyUrl(code)
-			setTimeout(() => {
-				setCopied(false)
-				setCopyUrl('')
-			}, 3000)
+			setCopiedUrl(short) // Ustawienie skopiowanego linku
+			setTimeout(() => setCopiedUrl(null), 3000) // Reset po 3 sekundach
 		})
 	}
 
@@ -62,32 +72,8 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 		}
 	}
 
-	useEffect(() => {
-		fetchUrls()
-	}, [refresh])
-
 	if (isLoading) {
-		return (
-			<div className="animate-pulse">
-				<div className="h-8 bg-grey-200 rounded w-1/4 mb-4"></div>
-				<ul className="space-y-2">
-					{[1, 2, 3].map(num => (
-						<li
-							key={num}
-							className="flex items-center gap-2 rounded-md border bg-card p-4 text-card-foreground justify-between">
-							<div className="h-4 bg-gray-200 rounded w-1/2"></div>
-							<div className="flex items-center gap-3">
-								<div className="h-5 w-5 bg-gray-200 rounded"></div>
-								<span className="flex items-center gap-2">
-									<div className="h-4 w-4 bg-gray-200 rounded"></div>
-									<div className="h-4 bg-gray-200 w-10 rounded"></div>
-								</span>
-							</div>
-						</li>
-					))}
-				</ul>
-			</div>
-		)
+		return <p>Ładowanie...</p>
 	}
 
 	return (
@@ -101,30 +87,49 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 							key={url.id}
 							className="flex items-center justify-between border p-2 bg-card rounded-md text-card-foreground">
 							<Link href={`/${url.short}`} target="_blank" className="text-blue-500">
-								{shortenerUrl(url.short)}
+								{process.env.NEXT_PUBLIC_DOMAIN}/{url.short}
 							</Link>
 							<div className="flex items-center gap-3">
 								{/* Kopiowanie linku */}
-								<Button
-									onClick={() => handleCopyUrl(url.short)}
-									variant="ghost"
-									size="icon"
-									className="text-muted-foreground hover:bg-muted">
-									{copied && copyUrl == url.short ? <Check className="w-4 h-4" /> : <CopyIcon className="w-4 h-4" />}
+								<Button onClick={() => handleCopyUrl(url.short)} variant="ghost" size="icon">
+									{copiedUrl === url.short ? (
+										<Check className="w-4 h-4 text-green-500" />
+									) : (
+										<CopyIcon className="w-4 h-4" />
+									)}
 								</Button>
+
 								{/* Licznik wyświetleń */}
 								<span className="flex items-center">
 									<EyeIcon className="h-4 w-4" />
 									{url.views}
 								</span>
+
 								{/* Przycisk usuwania linku */}
-								<button onClick={() => handleDelete(url.id)} className="ml-2 text-red-500 hover:text-red-700">
+								<Button
+									onClick={() => handleDelete(url.id)}
+									variant="ghost"
+									size="icon"
+									className="text-red-500 hover:text-red-700">
 									<TrashIcon className="w-4 h-4" />
-								</button>
+								</Button>
 							</div>
 						</li>
 					))}
 				</ul>
+
+				{/* PAGINACJA */}
+				<div className="flex justify-center mt-4 gap-2">
+					<Button onClick={() => goToPage(page - 1)} disabled={page <= 1}>
+						Poprzednia
+					</Button>
+					<span>
+						Strona {page} z {totalPages}
+					</span>
+					<Button onClick={() => goToPage(page + 1)} disabled={page >= totalPages}>
+						Następna
+					</Button>
+				</div>
 			</div>
 		</>
 	)
