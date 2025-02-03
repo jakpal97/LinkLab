@@ -1,4 +1,3 @@
-import { getAuth } from '@clerk/nextjs/server'
 import { PrismaClient } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
@@ -6,35 +5,32 @@ import { nanoid } from 'nanoid'
 const prisma = new PrismaClient()
 
 export async function POST(request: NextRequest) {
-	const { userId } = getAuth(request) // ⬅ Używamy getAuth zamiast auth
-	if (!userId) {
-		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-	}
+	const { url } = await request.json() // Otrzymujemy URL
 
-	const { url } = await request.json()
 	if (!url) {
 		return NextResponse.json({ error: 'URL is required' }, { status: 400 })
 	}
 
-	// Wyodrębniamy parametry UTM z URL
+	// Wyodrębniamy parametry z URL
 	const urlObj = new URL(url)
 	const searchParams = urlObj.searchParams
 
+	// Tworzymy obiekt params
 	const params: Record<string, string> = {}
+
+	// Przechodzimy po dostępnych parametrach i dodajemy je do obiektu
 	searchParams.forEach((value, key) => {
 		params[key] = value
 	})
 
-	// Generujemy unikalny skrócony link
+	// Generowanie krótkiego linku
 	const short = nanoid(6)
 
-	// Zapisujemy link w bazie danych, przypisując go do `userId`
 	const newUrl = await prisma.url.create({
 		data: {
 			original: url,
 			short,
-			params: Object.keys(params).length > 0 ? params : {},
-			userId, // Przechowujemy właściciela linku
+			params: Object.keys(params).length > 0 ? params : {}, // Jeśli brak parametrów, zapisujemy null
 		},
 	})
 

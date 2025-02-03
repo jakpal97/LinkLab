@@ -20,5 +20,5 @@ model Url {
   params    Json?  
   views     Int      @default(0)
   createdAt DateTime @default(now())
-  userId    String 
+
 }
