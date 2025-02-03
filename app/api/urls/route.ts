@@ -12,7 +12,15 @@ export async function GET(req: NextRequest) {
 		const urls = await prisma.url.findMany({
 			orderBy: { createdAt: 'desc' },
 			skip, // Pomijamy określoną liczbę rekordów
-			take: pageSize, // Pobieramy tylko 15 rekordów
+			take: pageSize,
+			select: {
+                id: true,
+                original: true,
+                short: true,
+                views: true,
+                createdAt: true,  // Dodajemy datę utworzenia
+                params: true, // Dodajemy parametry UTM
+            }, // Pobieramy tylko 15 rekordów
 		})
 
 		const totalCount = await prisma.url.count() // Pobieramy liczbę wszystkich linków

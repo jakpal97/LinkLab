@@ -4,13 +4,15 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from './ui/button'
-import { CopyIcon, EyeIcon, Check, TrashIcon } from 'lucide-react'
+import { CopyIcon, EyeIcon, Check, TrashIcon, ChevronDown, ChevronUp } from 'lucide-react'
 
 type Url = {
 	id: string
 	short: string
 	original: string
 	views: number
+	createdAt: string // Dodajemy datę utworzenia
+	params?: { utm_source?: string; utm_campaign?: string }
 }
 
 export default function UrlList({ refresh }: { refresh: boolean }) {
@@ -19,6 +21,7 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 	const [totalCount, setTotalCount] = useState<number>(0)
 	const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
 	const [page, setPage] = useState<number>(1) // 📌 Przechowujemy numer strony w stanie
+	const [expandedLinks, setExpandedLinks] = useState<{ [key: string]: boolean }>({})
 
 	const router = useRouter()
 	const pageSize = 15
@@ -30,6 +33,12 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 		const currentPage = parseInt(urlParams.get('page') || '1', 10)
 		setPage(currentPage)
 	}, [])
+	const toggleExpand = (id: string) => {
+		setExpandedLinks(prev => ({
+			...prev,
+			[id]: !prev[id], // Przełączamy rozwinięcie dla danego linku
+		}))
+	}
 
 	const fetchUrls = async () => {
 		setIsLoading(true)
@@ -88,13 +97,22 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 
 				<ul className="space-y-2">
 					{urls.map(url => (
-						<li key={url.id} className="flex items-center justify-between border p-2 bg-card rounded-md text-card-foreground">
+						<li
+							key={url.id}
+							className="flex items-center justify-between border p-2 bg-card rounded-md text-card-foreground">
 							<Link href={`/${url.short}`} target="_blank" className="text-blue-500">
 								{process.env.NEXT_PUBLIC_DOMAIN}/{url.short}
 							</Link>
+							<Button onClick={() => toggleExpand(url.id)} variant="ghost" size="icon">
+								{expandedLinks[url.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+							</Button>
 							<div className="flex items-center gap-3">
 								<Button onClick={() => handleCopyUrl(url.short)} variant="ghost" size="icon">
-									{copiedUrl === url.short ? <Check className="w-4 h-4 text-green-500" /> : <CopyIcon className="w-4 h-4" />}
+									{copiedUrl === url.short ? (
+										<Check className="w-4 h-4 text-green-500" />
+									) : (
+										<CopyIcon className="w-4 h-4" />
+									)}
 								</Button>
 
 								<span className="flex items-center">
@@ -102,10 +120,26 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 									{url.views}
 								</span>
 
-								<Button onClick={() => handleDelete(url.id)} variant="ghost" size="icon" className="text-red-500 hover:text-red-700">
+								<Button
+									onClick={() => handleDelete(url.id)}
+									variant="ghost"
+									size="icon"
+									className="text-red-500 hover:text-red-700">
 									<TrashIcon className="w-4 h-4" />
 								</Button>
 							</div>
+							{/* ROZWIJANE SZCZEGÓŁY */}
+							{expandedLinks[url.id] && (
+								<div className="mt-2 p-2 border-t">
+									<p className="text-sm text-gray-500">Dodano: {new Date(url.createdAt).toLocaleString()}</p>
+									{url.params && (
+										<>
+											{url.params.utm_source && <p className="text-sm">UTM Source: {url.params.utm_source}</p>}
+											{url.params.utm_campaign && <p className="text-sm">Kampania: {url.params.utm_campaign}</p>}
+										</>
+									)}
+								</div>
+							)}
 						</li>
 					))}
 				</ul>
@@ -115,7 +149,9 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 					<Button onClick={() => goToPage(page - 1)} disabled={page <= 1}>
 						Poprzednia
 					</Button>
-					<span>Strona {page} z {totalPages}</span>
+					<span>
+						Strona {page} z {totalPages}
+					</span>
 					<Button onClick={() => goToPage(page + 1)} disabled={page >= totalPages}>
 						Następna
 					</Button>
