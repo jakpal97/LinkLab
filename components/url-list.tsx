@@ -12,13 +12,15 @@ type Url = {
 	views: number
 }
 
-export default function UrlList() {
+export default function UrlList({ refresh }: { refresh: boolean }) {
 	const [urls, setUrls] = useState<Url[]>([])
 	const [copied, setCopied] = useState<boolean>(false)
 	const [copyUrl, setCopyUrl] = useState<string>('')
 	const [isLoading, setIsLoading] = useState<boolean>(false)
+	
 
 	const shortenerUrl = (code: string) => `${process.env.NEXT_PUBLIC_DOMAIN}/${code}`
+	
 
 	const fetchUrls = async () => {
 		setIsLoading(true)
@@ -62,7 +64,7 @@ export default function UrlList() {
 
 	useEffect(() => {
 		fetchUrls()
-	}, [])
+	}, [refresh])
 
 	if (isLoading) {
 		return (

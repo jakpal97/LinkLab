@@ -8,11 +8,15 @@ import PostGenerator from './post-generator'
 export default function UrlShortnerContainer() {
 	const [activeComponent, setActiveComponent] = useState<'shortener' | 'builder' | 'generator'>('shortener')
 	const [darkMode, setDarkMode] = useState(false)
+	const [refresh, setRefresh] = useState(false)
 
 	useEffect(() => {
 		const savedTheme = localStorage.getItem('theme')
 		if (savedTheme) setDarkMode(savedTheme === 'dark')
 	}, [])
+	const handleUrlShortened = () => {
+		setRefresh(prev => !prev) // Przełącz wartość, by wymusić ponowne pobranie linków
+	}
 
 	const toggleDarkMode = () => {
 		setDarkMode(prev => !prev)
@@ -77,8 +81,8 @@ export default function UrlShortnerContainer() {
 					{activeComponent === 'shortener' && (
 						<>
 							<h1 className="text-3xl font-bold text-center mb-6">URL Shortener</h1>
-							<ShortForm handleUrlShortened={() => {}} />
-							<UrlList />
+							<ShortForm handleUrlShortened={handleUrlShortened} />
+							<UrlList refresh={refresh} />
 						</>
 					)}
 					{activeComponent === 'builder' && (
