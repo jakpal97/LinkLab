@@ -10,6 +10,7 @@
 		"postinstall": "prisma generate"
 	},
 	"dependencies": {
+		"@clerk/nextjs": "^6.10.6",
 		"@fortawesome/fontawesome-svg-core": "^6.7.2",
 		"@google/generative-ai": "^0.21.0",
 		"@huggingface/inference": "^2.8.1",
