@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from './ui/button'
-import { CopyIcon, EyeIcon, Check, Trash2 } from 'lucide-react'
-
+import { CopyIcon, EyeIcon, Check } from 'lucide-react'
+import { TrashIcon } from 'lucide-react'
 type Url = {
 	id: string
 	short: string
@@ -45,23 +45,18 @@ export default function UrlList() {
 		})
 	}
 
-	const handleDeleteUrl = async (id: string) => {
-		const confirmDelete = confirm('Czy na pewno chcesz usunąć ten link?')
-		if (!confirmDelete) return
-
+	const handleDelete = async (id: string) => {
 		try {
 			const response = await fetch(`/api/urls/${id}`, {
 				method: 'DELETE',
 			})
-
 			if (response.ok) {
-				// Usuwamy link z lokalnego stanu
 				setUrls(prevUrls => prevUrls.filter(url => url.id !== id))
 			} else {
 				console.error('Błąd podczas usuwania linku')
 			}
 		} catch (error) {
-			console.error('Błąd połączenia z serwerem:', error)
+			console.error('Błąd:', error)
 		}
 	}
 
@@ -121,13 +116,9 @@ export default function UrlList() {
 									{url.views}
 								</span>
 								{/* Przycisk usuwania linku */}
-								<Button
-									onClick={() => handleDeleteUrl(url.id)}
-									variant="ghost"
-									size="icon"
-									className="text-red-500 hover:bg-red-100">
-									<Trash2 className="w-4 h-4" />
-								</Button>
+								<button onClick={() => handleDelete(url.id)} className="ml-2 text-red-500 hover:text-red-700">
+									<TrashIcon className="w-4 h-4" />
+								</button>
 							</div>
 						</li>
 					))}
