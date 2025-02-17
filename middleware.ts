@@ -9,7 +9,7 @@ export function middleware(req: Request) {
     const now = Date.now();
     const requests = ipRequests.get(ip) || 0;
 
-    if (requests > 5) {
+    if (requests > 3) {
       return new NextResponse("Too many requests", { status: 429 });
     }
 
