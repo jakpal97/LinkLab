@@ -11,7 +11,7 @@ type Url = {
 	short: string
 	original: string
 	views: number
-	createdAt: string // Dodajemy datę utworzenia
+	createdAt: string
 	params?: { utm_source?: string; utm_campaign?: string }
 }
 
@@ -20,30 +20,33 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [totalCount, setTotalCount] = useState<number>(0)
 	const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
-	const [page, setPage] = useState<number>(1) // 📌 Przechowujemy numer strony w stanie
+	const [page, setPage] = useState<number>(1)
 	const [expandedLinks, setExpandedLinks] = useState<{ [key: string]: boolean }>({})
+	const [sortOption, setSortOption] = useState<string>("trafność") 
 
 	const router = useRouter()
 	const pageSize = 15
 	const totalPages = Math.ceil(totalCount / pageSize)
 
-	// 🛠 Pobieramy `searchParams` w `useEffect()`, aby uniknąć błędu podczas prerenderowania
+
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search)
 		const currentPage = parseInt(urlParams.get('page') || '1', 10)
 		setPage(currentPage)
 	}, [])
+
 	const toggleExpand = (id: string) => {
 		setExpandedLinks(prev => ({
 			...prev,
-			[id]: !prev[id], // Przełączamy rozwinięcie dla danego linku
+			[id]: !prev[id],
 		}))
 	}
 
+	
 	const fetchUrls = async () => {
 		setIsLoading(true)
 		try {
-			const response = await fetch(`/api/urls?page=${page}`)
+			const response = await fetch(`/api/urls?page=${page}&sort=${sortOption}`)
 			const data = await response.json()
 			setUrls(data.urls)
 			setTotalCount(data.totalCount)
@@ -54,13 +57,15 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 		}
 	}
 
+	
 	useEffect(() => {
 		fetchUrls()
-	}, [page, refresh])
+	}, [page, refresh, sortOption])
 
+	
 	const goToPage = (newPage: number) => {
 		router.push(`?page=${newPage}`)
-		setPage(newPage) // 📌 Ustawiamy nową stronę w stanie, aby wymusić odświeżenie
+		setPage(newPage)
 	}
 
 	const handleCopyUrl = (short: string) => {
@@ -70,6 +75,7 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 			setTimeout(() => setCopiedUrl(null), 3000)
 		})
 	}
+
 
 	const handleDelete = async (id: string) => {
 		try {
@@ -94,6 +100,19 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 		<>
 			<div>
 				<h2 className="text-2xl font-bold mb-2">Ostatnie linki</h2>
+
+				
+				<div className="mb-4">
+					<label className="mr-2 text-sm font-semibold">Sortowanie:</label>
+					<select
+						value={sortOption}
+						onChange={(e) => setSortOption(e.target.value)}
+						className="border p-2 rounded"
+					>
+						<option value="trafność">Trafność: największa</option>
+						<option value="najnowsze">Data: najnowsze</option>
+					</select>
+				</div>
 
 				<ul className="space-y-2">
 					{urls.map(url => (
@@ -128,7 +147,6 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 									<TrashIcon className="w-4 h-4" />
 								</Button>
 							</div>
-							{/* ROZWIJANE SZCZEGÓŁY */}
 							{expandedLinks[url.id] && (
 								<div className="mt-2 p-2 border-t">
 									<p className="text-sm text-gray-500">Dodano: {new Date(url.createdAt).toLocaleString()}</p>
@@ -144,7 +162,7 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 					))}
 				</ul>
 
-				{/* PAGINACJA */}
+			
 				<div className="flex justify-center mt-4 gap-2">
 					<Button onClick={() => goToPage(page - 1)} disabled={page <= 1}>
 						Poprzednia
