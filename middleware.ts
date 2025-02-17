@@ -20,6 +20,7 @@ export function middleware(req: Request) {
   return NextResponse.next();
 }
 
+// Middleware działa tylko dla dynamicznych linków
 export const config = {
-  matcher: "/:path*",
+  matcher: "/shortcode/:path*",
 };
