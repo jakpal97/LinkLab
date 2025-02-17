@@ -22,13 +22,13 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 	const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
 	const [page, setPage] = useState<number>(1)
 	const [expandedLinks, setExpandedLinks] = useState<{ [key: string]: boolean }>({})
-	const [sortOption, setSortOption] = useState<string>("trafność") 
+	const [sortOption, setSortOption] = useState<string>("trafność") // 🔥 Nowy stan dla sortowania
 
 	const router = useRouter()
 	const pageSize = 15
 	const totalPages = Math.ceil(totalCount / pageSize)
 
-
+	// Pobieramy aktualną stronę z URL na starcie
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search)
 		const currentPage = parseInt(urlParams.get('page') || '1', 10)
@@ -42,7 +42,7 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 		}))
 	}
 
-	
+	// ✅ Pobieranie linków z API z obsługą paginacji i sortowania
 	const fetchUrls = async () => {
 		setIsLoading(true)
 		try {
@@ -57,17 +57,18 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 		}
 	}
 
-	
+	// ✅ Wywołujemy pobieranie po zmianie strony, sortowania lub odświeżeniu
 	useEffect(() => {
 		fetchUrls()
 	}, [page, refresh, sortOption])
 
-	
+	// ✅ Zmiana strony w paginacji
 	const goToPage = (newPage: number) => {
 		router.push(`?page=${newPage}`)
 		setPage(newPage)
 	}
 
+	// ✅ Kopiowanie linku do schowka
 	const handleCopyUrl = (short: string) => {
 		const fullUrl = `${process.env.NEXT_PUBLIC_DOMAIN}/${short}`
 		navigator.clipboard.writeText(fullUrl).then(() => {
@@ -76,7 +77,7 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 		})
 	}
 
-
+	// ✅ Usuwanie linku
 	const handleDelete = async (id: string) => {
 		try {
 			const response = await fetch(`/api/urls/${id}`, {
@@ -99,19 +100,20 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 	return (
 		<>
 			<div>
-				<h2 className="text-2xl font-bold mb-2">Ostatnie linki</h2>
-
-				
-				<div className="mb-4">
-					<label className="mr-2 text-sm font-semibold">Sortowanie:</label>
-					<select
-						value={sortOption}
-						onChange={(e) => setSortOption(e.target.value)}
-						className="border p-2 rounded"
-					>
-						<option value="trafność">Trafność: największa</option>
-						<option value="najnowsze">Data: najnowsze</option>
-					</select>
+				{/* 🔥 Nagłówek + Sortowanie (po lewej stronie) */}
+				<div className="flex items-center justify-between mb-4">
+					<div className="flex items-center gap-4">
+						<h2 className="text-2xl font-bold">Ostatnie linki</h2>
+						{/* 🔥 Dropdown do sortowania */}
+						<select
+							value={sortOption}
+							onChange={(e) => setSortOption(e.target.value)}
+							className="border p-2 rounded"
+						>
+							<option value="trafność">Trafność: największa</option>
+							<option value="najnowsze">Data: najnowsze</option>
+						</select>
+					</div>
 				</div>
 
 				<ul className="space-y-2">
@@ -162,7 +164,7 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 					))}
 				</ul>
 
-			
+				{/* 🔥 PAGINACJA */}
 				<div className="flex justify-center mt-4 gap-2">
 					<Button onClick={() => goToPage(page - 1)} disabled={page <= 1}>
 						Poprzednia
