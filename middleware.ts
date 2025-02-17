@@ -1,26 +1,44 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import { Redis } from "@upstash/redis";
 
-const ipRequests = new Map<string, number>(); // Przechowuje liczbę żądań na IP
 
-export function middleware(req: Request) {
-  const ip = req.headers.get("x-forwarded-for") || "unknown";
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
 
-  if (ip !== "unknown") {
-    const now = Date.now();
-    const requests = ipRequests.get(ip) || 0;
+export async function middleware(req: NextRequest) {
+  
+  const ip =
+    req.headers.get("x-forwarded-for") ||
+    req.headers.get("cf-connecting-ip") || 
+    req.headers.get("x-real-ip") ||
+    "unknown";
 
-    if (requests > 3) {
-      return new NextResponse("Too many requests", { status: 429 });
-    }
+  console.log("📌 IP Użytkownika:", ip);
 
-    ipRequests.set(ip, requests + 1);
-    setTimeout(() => ipRequests.delete(ip), 60000); // Reset po 60 sekundach
+  if (ip === "unknown") {
+    return NextResponse.next();
   }
+
+
+  const key = `rate-limit:${ip}`;
+  const requests = (await redis.get<number>(key)) || 0;
+
+  console.log(`🔄 Liczba żądań dla IP ${ip}: ${requests}`);
+
+  if (requests >= 5) {
+    console.log("⛔ Blokada IP:", ip);
+    return new NextResponse("Too many requests", { status: 429 });
+  }
+
+ 
+  await redis.set(key, requests + 1, { ex: 60 });
 
   return NextResponse.next();
 }
 
-// Middleware działa tylko dla dynamicznych linków
+
 export const config = {
-  matcher: "/shortcode/:path*",
+  matcher: "/:path*",
 };
