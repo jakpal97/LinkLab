@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { SignOutButton } from '@clerk/nextjs'
-import { Home, Link2, Settings, LogOut, Sun, Moon, Download } from 'lucide-react'
+import { Home, Link2, Settings, LogOut, Sun, Moon } from 'lucide-react'
 import DashboardChart from './dashboard'
 import UrlBuilder from './form-builder'
 import UrlList from './url-list'

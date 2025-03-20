@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Parser } from 'json2csv'
 import { getAuth } from '@clerk/nextjs/server'
+import { NextRequest } from 'next/server'
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
 	try {
 		const auth = getAuth(req)
 		const clerkId = auth.userId
@@ -34,14 +35,17 @@ export async function GET(req: Request) {
 		})
 
 		// ✅ Przygotowanie danych do CSV
-		const urlsWithCampaign = urls.map(url => ({
-			'Original URL': url.original,
-			'Short URL': `${process.env.NEXT_PUBLIC_DOMAIN}/${url.short}`,
-			Views: url.views,
-			'Created At': url.createdAt.toISOString(),
-			'UTM Campaign': url.params?.utm_campaign || 'Brak',
-		}))
+		const urlsWithCampaign = urls.map(url => {
+			const params = typeof url.params === 'string' ? JSON.parse(url.params) : url.params
 
+			return {
+				'Original URL': url.original,
+				'Short URL': `${process.env.NEXT_PUBLIC_DOMAIN}/${url.short}`,
+				Views: url.views,
+				'Created At': url.createdAt.toISOString(),
+				'UTM Campaign': params?.utm_campaign || 'Brak',
+			}
+		})
 		// ✅ Ustawienie separatora jako `;` dla lepszej zgodności z Excel
 		const json2csvParser = new Parser({ delimiter: ';', quote: '"' })
 		const csv = json2csvParser.parse(urlsWithCampaign)

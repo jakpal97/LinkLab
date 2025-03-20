@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
@@ -35,7 +35,7 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 	const pageSize = 15
 	const totalPages = Math.ceil(totalCount / pageSize)
 
-	const fetchUrls = async () => {
+	const fetchUrls = useCallback(async () => {
 		if (!user) {
 			console.log('Brak użytkownika, nie pobieram URL-i')
 			return
@@ -55,11 +55,11 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 		} finally {
 			setIsLoading(false)
 		}
-	}
+	}, [user, page, sortOption]) // Zależności, które mogą się zmieniać
 
 	useEffect(() => {
 		if (user) fetchUrls()
-	}, [user, page, refresh, sortOption])
+	}, [user, page, refresh, sortOption, fetchUrls])
 
 	const handleCopyUrl = (short: string, customDomain?: string) => {
 		const domain = customDomain || process.env.NEXT_PUBLIC_DOMAIN

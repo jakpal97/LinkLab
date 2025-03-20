@@ -4,7 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Copy, Info } from 'lucide-react'
 
-export default function UrlBuilder() {
+interface UrlBuilderProps {
+	darkMode: boolean
+}
+
+export default function UrlBuilder({ darkMode }: UrlBuilderProps) {
 	const [baseUrl, setBaseUrl] = useState('')
 	const [utmSource, setUtmSource] = useState('')
 	const [utmMedium, setUtmMedium] = useState('')
@@ -37,13 +41,16 @@ export default function UrlBuilder() {
 
 	return (
 		<TooltipProvider>
-			<div className="flex justify-center items-center   ">
-				<div className="bg-white dark:bg-gray-900 shadow-lg rounded-lg  p-6 w-full max-w-3xl">
+			<div className="flex justify-center items-center">
+				<div
+					className={`shadow-lg rounded-lg p-6 w-full max-w-3xl ${
+						darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'
+					}`}>
 					<h1 className="text-4xl font-semibold text-center">URL Builder</h1>
-					<p className=" py-6  text-gray-600 dark:text-gray-400 text-center">
+					<p className="py-6 text-center">
 						Generuj linki UTM do analizy kampanii marketingowych.<br></br> Najedź na ikonkę
 						<span className="inline-flex items-center ml-1">
-							<Info className="w-5 h-5 text-black dark:text-white" />
+							<Info className={`w-5 h-5 ${darkMode ? 'text-white' : 'text-black'}`} />
 						</span>
 						aby sprawdzić szczegóły.
 					</p>
@@ -138,7 +145,7 @@ export default function UrlBuilder() {
 							/>
 						</div>
 
-						<Button type="submit" className="w-full text-xl h-12 mt-4 ">
+						<Button type="submit" className="w-full text-xl h-12 mt-4">
 							Generuj swój URL
 						</Button>
 					</form>

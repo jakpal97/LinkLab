@@ -1,6 +1,6 @@
 'use client'
 import { useRef } from 'react'
-import appScreen from '../../public/app-screen.png'
+import appScreen from '../../public/dashboard.png'
 import Image from 'next/image'
 import { motion, useScroll, useTransform } from 'framer-motion'
 

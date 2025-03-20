@@ -1,34 +1,27 @@
 'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { LinkIcon, Loader2, ExternalLink } from 'lucide-react'
 import { Alert, AlertDescription } from './ui/alert'
+import { useRouter } from 'next/navigation'
 
 interface ShortenFormProps {
-	handleUrlShortened: () => void
+	handleUrlShortened?: () => void
 }
 
 export default function ShortForm({ handleUrlShortened }: ShortenFormProps) {
 	const [url, setUrl] = useState<string>('')
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
+	const [urlShortened, setUrlShortened] = useState(false)
 	const router = useRouter()
 
 	const handleOnSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		setIsLoading(true)
 		setErrorMessage(null)
-
-		// Walidacja URL przed wysłaniem do API
-		try {
-			new URL(url)
-		} catch {
-			setErrorMessage('Niepoprawny URL. Wprowadź poprawny link rozpoczynający się od http:// lub https://')
-			setIsLoading(false)
-			return
-		}
 
 		try {
 			const response = await fetch('/api/shorten', {
@@ -37,16 +30,13 @@ export default function ShortForm({ handleUrlShortened }: ShortenFormProps) {
 				body: JSON.stringify({ url }),
 			})
 
-			if (!response.ok) {
-				setUrl('')
-				router.push(`?page=1`)
-				const errorData = await response.json()
-				throw new Error(errorData.error || 'Wystąpił błąd podczas skracania URL')
-			}
+			if (!response.ok) throw new Error('Błąd podczas skracania URL')
 
 			await response.json()
 			setUrl('')
-			handleUrlShortened()
+			setUrlShortened(true)
+			handleUrlShortened?.()
+			router.refresh()   
 		} catch (error) {
 			setErrorMessage(error instanceof Error ? error.message : 'Nieznany błąd')
 		} finally {
@@ -54,14 +44,11 @@ export default function ShortForm({ handleUrlShortened }: ShortenFormProps) {
 		}
 	}
 
-	const handlePaste = async () => {
-		try {
-			const text = await navigator.clipboard.readText()
-			setUrl(text)
-		} catch (err) {
-			console.error('Nie udało się wkleić tekstu ze schowka:', err)
+	useEffect(() => {
+		if (urlShortened) {
+			console.log('URL został skrócony, można odświeżyć listę')
 		}
-	}
+	}, [urlShortened])
 
 	return (
 		<div className="w-full max-w-4xl mx-auto">
@@ -82,19 +69,7 @@ export default function ShortForm({ handleUrlShortened }: ShortenFormProps) {
 								placeholder="https://twoj-dlugi-link.pl/przykładowa-strona"
 								required
 							/>
-							<Button
-								type="button"
-								variant="ghost"
-								className="absolute right-2 top-2 text-xs text-gray-500 hover:text-gray-700"
-								onClick={handlePaste}>
-								Wklej
-							</Button>
 						</div>
-						{url && (
-							<p className="mt-1 text-xs text-gray-500 truncate">
-								{url.length > 60 ? `${url.substring(0, 60)}...` : url}
-							</p>
-						)}
 					</div>
 
 					<Button
@@ -120,10 +95,6 @@ export default function ShortForm({ handleUrlShortened }: ShortenFormProps) {
 						<AlertDescription>{errorMessage}</AlertDescription>
 					</Alert>
 				)}
-
-				<div className="mt-4 pt-4 border-t text-sm text-gray-500">
-					<p>Skróć długie linki za darmo. Śledź statystyki i zarządzaj swoimi linkami w jednym miejscu.</p>
-				</div>
 			</div>
 		</div>
 	)

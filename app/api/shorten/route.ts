@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
 	try {
 		// Pobieramy użytkownika z bazy na podstawie Clerk ID
-		let user = await prisma.user.findUnique({
+		const user = await prisma.user.findUnique({
 			where: { clerkId },
 		})
 
