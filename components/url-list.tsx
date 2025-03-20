@@ -109,7 +109,7 @@ export default function UrlList({ refresh }: { refresh: boolean }) {
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
-				<h2 className="text-2xl font-bold">Twoje linki</h2>
+				<h2 className="text-2xl font-bold">Your Links</h2>
 				<Select value={sortOption} onValueChange={setSortOption}>
 					<SelectTrigger className="w-[200px]">
 						<SelectValue placeholder="Sortowanie" />

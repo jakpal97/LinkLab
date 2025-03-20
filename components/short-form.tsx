@@ -55,7 +55,7 @@ export default function ShortForm({ handleUrlShortened }: ShortenFormProps) {
 			<div className="bg-white rounded-lg shadow-sm border p-6">
 				<div className="flex items-center gap-2 mb-4">
 					<LinkIcon className="h-5 w-5 text-blue-500" />
-					<h2 className="text-xl font-bold">Skracacz linków</h2>
+					<h2 className="text-xl font-bold">URL Shortner</h2>
 				</div>
 
 				<form onSubmit={handleOnSubmit} className="space-y-4">
@@ -84,7 +84,7 @@ export default function ShortForm({ handleUrlShortened }: ShortenFormProps) {
 						) : (
 							<>
 								<ExternalLink className="h-5 w-5" />
-								<span>Skróć swój link</span>
+								<span>Shorten your url</span>
 							</>
 						)}
 					</Button>
