@@ -7,13 +7,14 @@ This is a [Next.js](https://nextjs.org) project that allows you to shorten URLs,
 ### 🏡 Landing Page
 ![Landing Page](./public/Hero.png)
 
-### 📊 Dashboard - Click Statistics
-![Dashboard](./public/dashboard.png)
 ### 🛠️ Features  
 ![Features](./public/features.png)
 
 ### ❓ FAQ Section  
 ![FAQ](./public/faq.png)
+
+### 📊 Dashboard - Click Statistics
+![Dashboard](./public/dashboard.png)
 
 ### 🔗 URL Shortener & Link Management  
 ![Shortener](./public/short.png)
@@ -45,13 +46,13 @@ Open http://localhost:3000 with your browser to see the result.
 
 ## 🛠️ Technologies Used
 - ⚛️ **React.js** – Modern frontend framework
--⏭️ **Next.js** – Server-side rendering and API routes
--📦 **Prisma** – ORM for database management
--📊 **Chart.js & Recharts** – Data visualization
--📩 **Mailgun API** – Email notifications
--☁️ **Vercel** – Deployment platform
--🔗 **Clerk** – Authentication and user management
--🛠️ **n8n** – Backend automation
+- ⏭️ **Next.js** – Server-side rendering and API routes
+- 📦 **Prisma** – ORM for database management
+- 📊 **Chart.js & Recharts** – Data visualization
+- 📩 **Mailgun API** – Email notifications
+- ☁️ **Vercel** – Deployment platform
+- 🔗 **Clerk** – Authentication and user management
+- 🛠️ **n8n** – Backend automation
 
 ## 🚀 Deployment on Vercel
 This project is ready for deployment on Vercel. Simply push your code to GitHub and link your repository to Vercel.
