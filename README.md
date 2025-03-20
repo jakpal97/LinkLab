@@ -1,7 +1,7 @@
 # 🚀 LinkLab - URL Shortener & Analytics
 
 This is a [Next.js](https://nextjs.org) project that allows you to shorten URLs, track clicks, and analyze traffic data efficiently.
-## Url to visit the App : https://link-lab-one.vercel.app/
+# Url to visit the App : https://link-lab-one.vercel.app/
 
 ## 📸 Screenshots
 
