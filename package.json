@@ -9,10 +9,10 @@
 		"build": "prisma generate && next build",
 		"start": "next start",
 		"lint": "next lint"
-		
 	},
 	"dependencies": {
 		"@clerk/elements": "^0.22.23",
+		"@prisma/client": "^6.5.0",
 		"@clerk/nextjs": "^6.12.0",
 		"@fortawesome/fontawesome-svg-core": "^6.7.2",
 		"@google/generative-ai": "^0.21.0",
@@ -40,6 +40,7 @@
 		"tailwind-merge": "^2.5.5",
 		"tailwindcss-animate": "^1.0.7",
 		"torch": "^0.2.7",
+		"prisma": "^6.5.0",
 		"transformers": "^3.1.0"
 	},
 	"devDependencies": {
