@@ -1,0 +1,18 @@
+{
+	"features": {
+		"heading": "Wszystko, czego potrzebujesz w jednym miejscu",
+		"subheading": "Przekształć swoje długie linki w potężne narzędzia marketingowe. Uzyskaj szczegółowe statystyki i zarządzaj linkami za pomocą naszych zaawansowanych narzędzi.",
+		"analytics": {
+			"title": "Zaawansowana Analiza",
+			"description": "Śledź kliknięcia, analizuj demografię odwiedzających i monitoruj wydajność linków w czasie rzeczywistym dzięki szczegółowym statystykom i raportom wizualnym."
+		},
+		"shortening": {
+			"title": "Inteligentne Skracanie Linków",
+			"description": "Twórz krótkie, łatwe do zapamiętania linki natychmiast. Personalizuj swoje adresy URL za pomocą własnych domen i unikalnych slugów."
+		},
+		"management": {
+			"title": "Zarządzanie Linkami",
+			"description": "Organizuj, edytuj i zarządzaj wszystkimi skróconymi linkami w jednym panelu. Grupuj linki według kampanii i łatwo monitoruj ich wydajność."
+		}
+	}
+}

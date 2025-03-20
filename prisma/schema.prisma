@@ -14,11 +14,34 @@ datasource db {
 }
 
 model Url {
-  id        String   @id @default(uuid())
-  original  String
-  short     String   @unique
-  params    Json?  
-  views     Int      @default(0)
-  createdAt DateTime @default(now())
+  id         String   @id @default(uuid())
+  original   String
+  short      String   @unique
+  params     Json?
+  views      Int      @default(0)
+  createdAt  DateTime @default(now())
+  clicks     Click[]
+  userId     String  
+  user       User   @relation("UserUrls", fields: [userId], references: [id], onDelete: Cascade)
 
+  customSlug   String? @unique // Niestandardowy slug (opcjonalny)
+  customDomain String? // Domena użytkownika (opcjonalna)
+}
+
+model Click {
+  id        String   @id @default(uuid())
+  urlId     String
+  url       Url      @relation(fields: [urlId], references: [id], onDelete: Cascade)
+  country   String?
+  referrer  String?
+  userAgent String?
+  ipAddress String?
+  timestamp DateTime @default(now())
+}
+model User {
+  id            String  @id @default(uuid())
+  clerkId       String  @unique
+  email         String  @unique
+  urls          Url[]   @relation("UserUrls")
+  customDomain  String? @unique // Pole na domenę użytkownika
 }

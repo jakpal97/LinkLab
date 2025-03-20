@@ -1,76 +1,60 @@
 import { PrismaClient } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
+import { getAuth } from '@clerk/nextjs/server' // Clerk
 
 const prisma = new PrismaClient()
+const DEFAULT_DOMAIN = 'link-lab.pl' // ✅ Twoja domyślna domena
 
 export async function POST(request: NextRequest) {
-	const { url } = await request.json() // Otrzymujemy URL
+	const { url, customSlug } = await request.json()
+	const auth = getAuth(request)
+	const clerkId = auth.userId // Pobranie ID użytkownika Clerk
 
-	if (!url) {
-		return NextResponse.json({ error: 'URL is required' }, { status: 400 })
+	if (!url || !clerkId) {
+		return NextResponse.json({ error: 'URL and user authentication required' }, { status: 400 })
 	}
 
-	// Wyodrębniamy parametry z URL
-	const urlObj = new URL(url)
-	const searchParams = urlObj.searchParams
+	try {
+		// Pobieramy użytkownika z bazy na podstawie Clerk ID
+		let user = await prisma.user.findUnique({
+			where: { clerkId },
+		})
 
-	// Tworzymy obiekt params
-	const params: Record<string, string> = {}
+		// Jeśli użytkownik nie istnieje w bazie - zwróć błąd
+		if (!user) {
+			return NextResponse.json({ error: 'User not found in database' }, { status: 404 })
+		}
 
-	// Przechodzimy po dostępnych parametrach i dodajemy je do obiektu
-	searchParams.forEach((value, key) => {
-		params[key] = value
-	})
+		// ✅ Jeśli użytkownik ma premium → używa własnej domeny, jeśli nie → `link-lab.pl`
+		const domain = user.customDomain || DEFAULT_DOMAIN
 
-	// Generowanie krótkiego linku
-	const short = nanoid(6)
+		// ✅ Sprawdzamy, czy niestandardowy slug nie jest już zajęty
+		if (customSlug) {
+			const existingSlug = await prisma.url.findUnique({
+				where: { customSlug },
+			})
+			if (existingSlug) {
+				return NextResponse.json({ error: 'This slug is already taken' }, { status: 400 })
+			}
+		}
 
-	const newUrl = await prisma.url.create({
-		data: {
-			original: url,
-			short,
-			params: Object.keys(params).length > 0 ? params : {}, // Jeśli brak parametrów, zapisujemy null
-		},
-	})
+		// Tworzymy nowy skrócony link
+		const short = customSlug || nanoid(6)
 
-	return NextResponse.json({ short: newUrl.short })
+		const newUrl = await prisma.url.create({
+			data: {
+				original: url,
+				short,
+				userId: user.id,
+				customSlug: customSlug || null,
+				customDomain: domain, // ✅ Każdy link ma przypisaną domenę
+			},
+		})
+
+		return NextResponse.json({ short: `${domain}/${newUrl.short}` })
+	} catch (error) {
+		console.error('Error processing request:', error)
+		return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+	}
 }
-// import { PrismaClient } from '@prisma/client';
-// import { NextRequest, NextResponse } from 'next/server';
-// import { nanoid } from 'nanoid';
-
-// const prisma = new PrismaClient();
-
-// export async function POST(request: NextRequest) {
-//   try {
-//     // Odczytaj dane JSON z żądania
-//     const { url, utm_source, utm_id, utm_content } = await request.json();
-
-//     if (!url) {
-//       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
-//     }
-
-//     // Wygeneruj unikalny skrót (np. abc123)
-//     const short = nanoid(6);
-
-//     // Zapisz dane do bazy
-//     const newUrl = await prisma.url.create({
-//       data: {
-//         original: url,
-//         short,
-//         params: {
-//           utm_source: utm_source || null,
-//           utm_id: utm_id || null,
-//           utm_content: utm_content || null,
-//         },
-//       },
-//     });
-
-//     // Zwróć skrócony link
-//     return NextResponse.json({ short: newUrl.short });
-//   } catch (error) {
-//     console.error('Error in POST:', error);
-//     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-//   }
-// }

@@ -1,42 +1,39 @@
 import { prisma } from '@/lib/prisma'
-import { NextResponse } from 'next/server'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getAuth } from '@clerk/nextjs/server' // Pobieramy dane autoryzacyjne użytkownika
 
 export async function GET(req: NextRequest) {
-	try {
-		const searchParams = new URL(req.url).searchParams
-		const page = parseInt(searchParams.get('page') || '1', 10) 
-		const sort = searchParams.get('sort') || 'trafność'
-		const pageSize = 15
-		const skip = (page - 1) * pageSize 
+	const auth = getAuth(req)
+	const clerkId = auth.userId // Pobieramy Clerk ID
 
-		
-		let orderBy = {}
-		if (sort === 'trafność') {
-			orderBy = { views: 'desc' } 
-		} else if (sort === 'najnowsze') {
-			orderBy = { createdAt: 'desc' } 
-		}
-
-		const urls = await prisma.url.findMany({
-			orderBy,
-			skip,
-			take: pageSize,
-			select: {
-				id: true,
-				original: true,
-				short: true,
-				views: true,
-				createdAt: true,
-				params: true,
-			},
-		})
-
-		const totalCount = await prisma.url.count()
-
-		return NextResponse.json({ urls, totalCount, page, pageSize })
-	} catch (error) {
-		console.error(error)
-		return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+	if (!clerkId) {
+		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 	}
+
+	// Pobieramy użytkownika z bazy
+	const user = await prisma.user.findUnique({
+		where: { clerkId }, // Szukamy po Clerk ID
+		select: { id: true }, // Pobieramy tylko ID użytkownika
+	})
+
+	if (!user) {
+		return NextResponse.json({ error: 'User not found' }, { status: 404 })
+	}
+
+	// Pobieramy tylko linki należące do zalogowanego użytkownika
+	const urls = await prisma.url.findMany({
+		where: { userId: user.id },
+		select: {
+			id: true,
+			original: true,
+			short: true,
+			views: true,
+			createdAt: true,
+			params: true,
+			customDomain: true,
+			customSlug: true,
+		},
+	})
+
+	return NextResponse.json({ urls })
 }

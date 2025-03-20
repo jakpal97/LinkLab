@@ -9,6 +9,11 @@ export default {
 	],
 	theme: {
 		extend: {
+			container: {
+				padding: '1rem',
+				center: true,
+			},
+
 			colors: {
 				background: 'hsl(var(--background))',
 				backgroundImage: {

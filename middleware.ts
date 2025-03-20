@@ -1,40 +1,20 @@
-import { NextResponse, NextRequest } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-const ipRequests = new Map<string, number>();
+const isPublicRoute = createRouteMatcher([
+	'/',
+	'/sign-in(.*)', // Umożliwia poprawne działanie logowania
+	
+])
 
-export function middleware(req: NextRequest) {
-  const pathname = req.nextUrl.pathname;
-
-  // Omijamy stronę główną "/"
-  if (pathname === "/") {
-    return NextResponse.next();
-  }
-
-  // Sprawdzamy, czy ścieżka pasuje do dynamicznego wzorca "/[dynamic]"
-  const dynamicPathRegex = /^\/[^\/]+$/; // Pasuje do "/coś", ale nie do "/coś/innego"
-
-  if (!dynamicPathRegex.test(pathname)) {
-    return NextResponse.next();
-  }
-
-  // Pobieramy IP użytkownika
-  const ip = req.headers.get("x-forwarded-for") || "unknown";
-
-  if (ip !== "unknown") {
-    const now = Date.now();
-    const requests = ipRequests.get(ip) || 0;
-
-    if (requests > 5) {
-      return new NextResponse("Too many requests", { status: 429 });
-    }
-
-    ipRequests.set(ip, requests + 1);
-    setTimeout(() => ipRequests.delete(ip), 60000);
-  }
-
-  return NextResponse.next();
-}
+export default clerkMiddleware(async (auth, req) => {
+	if (!isPublicRoute(req)) await auth.protect()
+})
 
 export const config = {
-  matcher: "/:path*", // Middleware działa na wszystkich ścieżkach, ale filtrujemy je w kodzie
-};
+	matcher: [
+		// Skip Next.js internals and all static files, unless found in search params
+		'/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+		// Always run for API routes
+		'/(api|trpc)(.*)',
+	],
+}
